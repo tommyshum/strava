@@ -5,7 +5,7 @@ import { Activity, Calendar, MapPin, Clock } from 'lucide-react'
 // Strava OAuth Configuration
 const CLIENT_ID = '146008';
 const CLIENT_SECRET = '92b5e1d02cfec5f1b1b38bcccba65cb82c5124b2';
-const REDIRECT_URI = 'https://cool-puppy-d8445a.netlify.app/callback'; // Update after deployment
+const REDIRECT_URI = 'https://cool-puppy-d8445a.netlify.app/callback';
 
 function StravaApp() {
   const [activities, setActivities] = useState([]);
@@ -23,12 +23,15 @@ function StravaApp() {
   const initiateAuth = () => {
     const scope = 'read,activity:read';
     const authUrl = `https://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${scope}`;
+    console.log('Auth URL:', authUrl); // Debug log
     window.location.href = authUrl;
   };
 
   const handleAuthCode = async (code) => {
     try {
       setLoading(true);
+      console.log('Exchanging code for token...'); // Debug log
+      
       const response = await fetch('https://www.strava.com/oauth/token', {
         method: 'POST',
         headers: {
@@ -42,11 +45,18 @@ function StravaApp() {
         })
       });
 
-      if (!response.ok) throw new Error('Failed to exchange token');
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Token exchange error:', errorData); // Debug log
+        throw new Error('Failed to exchange token: ' + JSON.stringify(errorData));
+      }
+
       const data = await response.json();
+      console.log('Token received:', data); // Debug log
       await fetchActivities(data.access_token);
       window.history.replaceState({}, document.title, '/');
     } catch (err) {
+      console.error('Auth error:', err); // Debug log
       setError(err.message);
     } finally {
       setLoading(false);
@@ -55,16 +65,24 @@ function StravaApp() {
 
   const fetchActivities = async (token) => {
     try {
+      console.log('Fetching activities...'); // Debug log
       const response = await fetch('https://www.strava.com/api/v3/athlete/activities', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
-      if (!response.ok) throw new Error('Failed to fetch activities');
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Activities fetch error:', errorData); // Debug log
+        throw new Error('Failed to fetch activities: ' + JSON.stringify(errorData));
+      }
+
       const data = await response.json();
+      console.log('Activities received:', data); // Debug log
       setActivities(data);
     } catch (err) {
+      console.error('Activities error:', err); // Debug log
       setError(err.message);
     }
   };
@@ -93,7 +111,17 @@ function StravaApp() {
   }
 
   if (error) {
-    return <div className="flex items-center justify-center min-h-screen text-red-500">{error}</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <div className="text-lg text-red-500">{error}</div>
+        <button 
+          onClick={initiateAuth}
+          className="bg-[#fc4c02] hover:bg-[#e34402] text-white px-6 py-3 rounded-lg flex items-center gap-2"
+        >
+          Try Again
+        </button>
+      </div>
+    );
   }
 
   if (activities.length === 0 && !window.location.search.includes('code')) {
