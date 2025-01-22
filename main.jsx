@@ -1,18 +1,18 @@
-import React from 'https://esm.sh/react@18.2.0'
-import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client'
-import { Activity, Calendar, MapPin, Clock } from 'https://esm.sh/lucide-react@0.263.1'
+import React, { useState, useEffect } from 'react'
+import ReactDOM from 'react-dom/client'
+import { Activity, Calendar, MapPin, Clock } from 'lucide-react'
 
 // Strava OAuth Configuration
 const CLIENT_ID = '146008';
 const CLIENT_SECRET = '92b5e1d02cfec5f1b1b38bcccba65cb82c5124b2';
-const REDIRECT_URI = 'YOUR-NETLIFY-URL.netlify.app/callback'; // Update this after getting your Netlify domain
+const REDIRECT_URI = 'YOUR-NETLIFY-URL.netlify.app/callback'; // Update after deployment
 
 function StravaApp() {
-  const [activities, setActivities] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState(null);
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     if (code) {
@@ -96,7 +96,7 @@ function StravaApp() {
     return <div className="flex items-center justify-center min-h-screen text-red-500">{error}</div>;
   }
 
-  if (!localStorage.getItem('stravaToken') && !window.location.search.includes('code')) {
+  if (activities.length === 0 && !window.location.search.includes('code')) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4">
         <h1 className="text-2xl font-bold text-center">Strava Activities Viewer</h1>
