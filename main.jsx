@@ -5,7 +5,7 @@ import { Activity, Calendar, MapPin, Clock } from 'lucide-react'
 // Strava OAuth Configuration
 const CLIENT_ID = '146008';
 const CLIENT_SECRET = '92b5e1d02cfec5f1b1b38bcccba65cb82c5124b2';
-const REDIRECT_URI = 'cool-puppy-d8445a.netlify.app/callback'; // Update after deployment
+const REDIRECT_URI = 'https://cool-puppy-d8445a.netlify.app/callback'; // Update after deployment
 
 function StravaApp() {
   const [activities, setActivities] = useState([]);
